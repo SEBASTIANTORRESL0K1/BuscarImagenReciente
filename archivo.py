@@ -1,5 +1,6 @@
 import os
 import glob
+from datetime import datetime
 
 def obtener_imagen_mas_reciente(carpeta_imagenes):
     # Obtener la lista de archivos en la carpeta de imágenes
@@ -7,6 +8,12 @@ def obtener_imagen_mas_reciente(carpeta_imagenes):
     
     # Filtrar solo los archivos que son imágenes (puedes agregar más extensiones si es necesario)
     lista_imagenes = [imagen for imagen in lista_imagenes if imagen.lower().endswith(('.png', '.jpg', '.jpeg', '.gif', '.bmp'))]
+    
+    # Obtener la fecha actual
+    fecha_actual = datetime.now().date()
+    
+    # Filtrar las imágenes que fueron modificadas en la fecha actual
+    lista_imagenes = [imagen for imagen in lista_imagenes if datetime.fromtimestamp(os.path.getmtime(imagen)).date() == fecha_actual]
     
     # Verificar si hay imágenes en la carpeta
     if not lista_imagenes:
