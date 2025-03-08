@@ -1,0 +1,83 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monitor de Imágenes Recientes</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        #imagen-contenedor {
+            margin-top: 20px;
+        }
+        #imagen-reciente {
+            max-width: 100%;
+            border: 1px solid #ddd;
+        }
+        #info {
+            background-color: #f5f5f5;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .error {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <h1>Monitor de Imágenes Recientes</h1>
+    
+    <div id="info">
+        <p>Carpeta monitoreada: <span id="carpeta-path"></span></p>
+        <p>Última actualización: <span id="ultima-actualizacion">-</span></p>
+    </div>
+    
+    <div id="status">Buscando imágenes recientes...</div>
+    
+    <div id="imagen-contenedor">
+        <img id="imagen-reciente" style="display: none;" alt="Imagen más reciente">
+    </div>
+    
+    <script>
+        // Establecer la ruta de la carpeta monitoreada
+        document.getElementById('carpeta-path').textContent = 'C:/Users/sseba/OneDrive/Imagenes';
+        
+        // Función para actualizar la imagen
+        function actualizarImagen() {
+            fetch('/obtener_imagen_reciente')
+                .then(response => response.json())
+                .then(data => {
+                    const horaActual = new Date().toLocaleTimeString();
+                    document.getElementById('ultima-actualizacion').textContent = horaActual;
+                    
+                    if (data.existe) {
+                        document.getElementById('status').textContent = `Imagen encontrada: ${data.nombre} (${data.fecha})`;
+                        const imagen = document.getElementById('imagen-reciente');
+                        // Añadir timestamp para evitar caché
+                        imagen.src = `${data.ruta}?t=${new Date().getTime()}`;
+                        imagen.style.display = 'block';
+                    } else {
+                        document.getElementById('status').textContent = data.mensaje;
+                        document.getElementById('imagen-reciente').style.display = 'none';
+                    }
+                })
+                .catch(error => {
+                    document.getElementById('status').innerHTML = `<span class="error">Error al obtener la imagen: ${error}</span>`;
+                });
+        }
+        
+        // Actualizar al cargar la página
+        actualizarImagen();
+        
+        // Actualizar cada minuto
+        setInterval(actualizarImagen, 60000);
+    </script>
+</body>
+</html>
+            
